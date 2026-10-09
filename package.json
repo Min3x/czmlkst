@@ -1,0 +1,18 @@
+{
+  "name": "czymamlek-strona",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Statyczna strona czymamlek.pl: zaproszenia do apteczki, powrót z linków emaili, plik App Links",
+  "scripts": {
+    "test": "jest",
+    "assetlinks": "node scripts/assetlinks.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/test"]
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "qrcode-generator": "2.0.4"
+  }
+}

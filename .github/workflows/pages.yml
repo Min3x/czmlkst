@@ -1,0 +1,51 @@
+# Strona czymamlek.pl na GitHub Pages (decyzja A41 w repozytorium aplikacji). Same pliki statyczne
+# z katalogu site/, bez budowania. Najpierw testy, potem wdrożenie — tylko z gałęzi main.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test -- --ci
+      # bez pliku weryfikacji App Links linki otwierają wybór aplikacji zamiast CzyMamLek
+      - name: assetlinks.json z odciskiem certyfikatu
+        run: node -e "const a=require('./site/.well-known/assetlinks.json'); if(!a.some(s=>s.target.sha256_cert_fingerprints.length>0)) process.exit(1)"
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+          # bez tego akcja pomija katalogi z kropką, a App Links czytają /.well-known/assetlinks.json
+          include-hidden-files: true
+      - id: deployment
+        uses: actions/deploy-pages@v4

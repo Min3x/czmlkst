@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 03 §4.1: strona nie pyta żadnego serwera; bez skryptów, stylów i czcionek z zewnątrz -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/assets/site.css">
+  <title>CzyMamLek</title>
+</head>
+<body>
+  <main class="card">
+    <noscript>
+      <h1>Wróć do aplikacji</h1>
+      <p>Otwórz CzyMamLek na telefonie, żeby dokończyć.</p>
+    </noscript>
+    <section id="callback-confirmed" hidden>
+      <h1>Adres potwierdzony</h1>
+      <p>Wróć do aplikacji CzyMamLek na telefonie i zaloguj się.</p>
+      <p class="secondary">Jeśli to był link do zmiany hasła — otwórz go na telefonie, na którym masz CzyMamLek.</p>
+    </section>
+    <section id="callback-expired" hidden>
+      <h1>Link wygasł</h1>
+      <p>Był już użyty albo jest za stary, więc niczego nie zmienił.</p>
+      <p>W aplikacji CzyMamLek wyślij nowy link.</p>
+    </section>
+    <section id="callback-error" hidden>
+      <h1>Nie udało się otworzyć linku</h1>
+      <p>Ten link niczego nie zmienił.</p>
+      <p>Otwórz link z emaila na telefonie, na którym masz CzyMamLek, albo wyślij nowy z aplikacji.</p>
+    </section>
+  </main>
+  <script src="/assets/callback.js"></script>
+</body>
+</html>

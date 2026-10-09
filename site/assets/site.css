@@ -1,0 +1,68 @@
+/* Kolory z aplikacji (src/ui/tokens.js, A15) — strona jest osobnym repozytorium, więc to ich ręczna kopia. */
+:root {
+  color-scheme: light dark;
+  --background: #edf2f7;
+  --surface: #f8fafc;
+  --text: #1e2a37;
+  --text-secondary: #4a5a6b;
+  --primary-fill: #0b5f68;
+  --on-primary: #ffffff;
+  --qr-dark: #000000;
+  --qr-light: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #12171f;
+    --surface: #1a212b;
+    --text: #e4eaf0;
+    --text-secondary: #a8b4c2;
+    --primary-fill: #14707c;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text);
+  font: 17px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+main {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+h1 { font-size: 1.5rem; line-height: 1.3; margin: 0 0 1rem; }
+p { margin: 0 0 1rem; }
+.secondary { color: var(--text-secondary); font-size: 0.95rem; }
+
+.button {
+  display: block;
+  text-align: center;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--primary-fill);
+  color: var(--on-primary);
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 1rem;
+}
+
+/* Kod QR zawsze czarny na białym — w ciemnym motywie skanery gorzej czytają odwrócone kolory. */
+.qr { max-width: 18rem; margin: 0 auto 1rem; }
+.qr svg { display: block; width: 100%; height: auto; }
+.qr-dark { fill: var(--qr-dark); }
+.qr-light { fill: var(--qr-light); }
+
+[hidden] { display: none !important; }

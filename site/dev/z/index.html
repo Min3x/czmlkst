@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 03 §4.1: strona nie pyta żadnego serwera; bez skryptów, stylów i czcionek z zewnątrz -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/assets/site.css">
+  <title>Zaproszenie do apteczki — CzyMamLek</title>
+</head>
+<body data-package-id="com.czymamlek.app.dev" data-link-base="https://czymamlek.pl/dev/z">
+  <main class="card">
+    <noscript>
+      <h1>Włącz JavaScript</h1>
+      <p>Bez niego strona nie pokaże zaproszenia. Włącz JavaScript w przeglądarce i otwórz link jeszcze raz.</p>
+    </noscript>
+    <section id="invite-android" hidden>
+      <h1>Zaproszenie do wspólnej apteczki</h1>
+      <p>Ktoś zaprasza cię do swojej apteczki w CzyMamLek. Zainstaluj aplikację — zaproszenie otworzy się po pierwszym uruchomieniu.</p>
+      <a id="store-link" class="button" href="#">Zainstaluj z Google Play</a>
+      <p class="secondary">Masz już CzyMamLek? Otwórz link jeszcze raz z wiadomości — otworzy się w aplikacji.</p>
+    </section>
+    <section id="invite-qr" hidden>
+      <h1>Zaproszenie do wspólnej apteczki</h1>
+      <p>Zeskanuj ten kod telefonem z Androidem, na którym chcesz mieć wspólną apteczkę.</p>
+      <div id="qr" class="qr"></div>
+      <p class="secondary">Zaproszenie jest ważne przez dobę od wysłania. Nie pokazuj kodu obcym osobom.</p>
+    </section>
+    <section id="invite-invalid" hidden>
+      <h1>Ten link jest niepełny</h1>
+      <p>Bez całego linku zaproszenie się nie otworzy.</p>
+      <p>Poproś osobę, która cię zaprasza, o wysłanie go jeszcze raz.</p>
+    </section>
+  </main>
+  <script src="/assets/qrcode-generator.js"></script>
+  <script src="/assets/invite.js"></script>
+</body>
+</html>
