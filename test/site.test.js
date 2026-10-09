@@ -45,3 +45,12 @@ describe('statyczna strona czymamlek.pl (03 §4.1, A41)', () => {
     expect(read('CNAME').trim()).toBe('czymamlek.pl');
   });
 });
+
+describe('wdrożenie (.github/workflows/pages.yml)', () => {
+  it('paczka Pages zawiera katalogi z kropką — inaczej /.well-known/assetlinks.json daje 404', () => {
+    const workflow = fs.readFileSync(path.join(__dirname, '..', '.github', 'workflows', 'pages.yml'), 'utf8');
+    // v4 nie zna include-hidden-files i po cichu pomija .well-known (wykryte przy pierwszym wdrożeniu)
+    expect(workflow).toMatch(/actions\/upload-pages-artifact@v5\s/);
+    expect(workflow).toMatch(/include-hidden-files: true/);
+  });
+});
