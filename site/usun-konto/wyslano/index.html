@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 03 §4.1: strona nie pyta żadnego serwera; bez skryptów, stylów i czcionek z zewnątrz -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/assets/site.css">
+  <title>Sprawdź pocztę — CzyMamLek</title>
+</head>
+<body>
+  <main class="card">
+    <h1>Sprawdź pocztę</h1>
+    <!-- Ten sam tekst bez względu na to, czy konto istnieje (03 §5.1) -->
+    <p>Jeśli na ten adres jest konto CzyMamLek, wysłaliśmy na niego link potwierdzający.</p>
+    <p>Link działa godzinę. Dopóki go nie otworzysz i nie potwierdzisz, nic się nie zmienia.</p>
+    <p class="secondary">Nie ma wiadomości? Sprawdź spam i adres, a potem <a href="/usun-konto/">spróbuj jeszcze raz</a>. Na jeden adres wysyłamy najwyżej trzy wiadomości na dobę.</p>
+  </main>
+</body>
+</html>

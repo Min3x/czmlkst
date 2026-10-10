@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Jedyne wywołanie serwera na całej stronie: formularz do funkcji account-mail (11 §2.4).
+       'self' w form-action: funkcja odpowiada przekierowaniem z powrotem na tę stronę, a przeglądarki
+       stosują form-action także do celu przekierowania. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/assets/site.css">
+  <title>Usuń konto — CzyMamLek</title>
+</head>
+<body>
+  <main class="card">
+    <h1>Usuń konto CzyMamLek</h1>
+    <p>Podaj adres email konta. Wyślemy na niego link — konto zacznie być usuwane dopiero, gdy go otworzysz i potwierdzisz.</p>
+    <form id="delete-form" method="post">
+      <input type="hidden" name="action" value="request">
+      <label for="delete-email">Adres email konta</label>
+      <input type="email" name="email" id="delete-email" autocomplete="email" maxlength="320" required>
+      <button type="submit" class="button" id="delete-submit" disabled>Wyślij link potwierdzający</button>
+    </form>
+    <section id="delete-unavailable" hidden>
+      <p>Usuwanie konta przez tę stronę jeszcze nie działa. Konto usuniesz w aplikacji: Profil → Usuń konto.</p>
+    </section>
+    <section id="delete-framed" hidden>
+      <p>Otwórz tę stronę bezpośrednio w przeglądarce: czymamlek.pl/usun-konto</p>
+    </section>
+    <noscript>
+      <p>Ta strona potrzebuje JavaScriptu. Konto usuniesz też w aplikacji: Profil → Usuń konto.</p>
+    </noscript>
+    <h2>Co zostanie usunięte</h2>
+    <p>Konto i dane są usuwane po 7 dniach od potwierdzenia: profil, apteczki, których jesteś właścicielem, z całą zawartością, recepty, przypomnienia i historia dawek. W cudzych apteczkach tracisz dostęp, a to, co tam dodano z twojego konta, zostaje bez wskazania autora.</p>
+    <p>Przez te 7 dni możesz anulować usunięcie, logując się w aplikacji.</p>
+    <h2>Co zostaje</h2>
+    <p>Zapis udzielonych zgód — dokument, wersja i data, bez powiązania z osobą — przechowujemy przez 3 lata jako dowód, potem go usuwamy.</p>
+    <p class="secondary">Masz aplikację? To samo zrobisz w niej: Profil → Usuń konto. Tam możesz też wcześniej pobrać swoje dane i przekazać apteczkę innej osobie.</p>
+  </main>
+  <script src="/assets/delete.js"></script>
+</body>
+</html>

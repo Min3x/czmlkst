@@ -2,17 +2,19 @@
 const { readToken, start } = require('../site/assets/delete');
 
 const TOKEN = 'AbCdEfGhIjKlMnOpQrStUvWxYz0123456789-_abcde';
-const CONFIRM_IDS = ['delete-form', 'delete-submit', 'delete-token', 'delete-invalid', 'delete-framed'];
-const REQUEST_IDS = ['delete-form', 'delete-submit', 'delete-framed'];
+const CONFIRM_IDS = ['delete-form', 'delete-submit', 'delete-token', 'delete-invalid', 'delete-framed', 'delete-unavailable'];
+const REQUEST_IDS = ['delete-form', 'delete-submit', 'delete-framed', 'delete-unavailable'];
+const ACTION = 'https://example.supabase.co/functions/v1/account-mail?forceFunctionRegion=eu-west-1';
 
 // Tyle strony, ile dotyka skrypt: elementy po identyfikatorze, w stanie z pliku HTML.
-function page(ids) {
+function page(ids, action) {
   const elements = Object.fromEntries(ids.map((id) => [id, { hidden: id !== 'delete-form', disabled: id === 'delete-submit', value: '' }]));
+  elements['delete-form'].getAttribute = (name) => (name === 'action' ? action : null);
   return { elements, getElementById: (id) => elements[id] ?? null };
 }
 
-function run({ ids, hash = '', framed = false }) {
-  const doc = page(ids);
+function run({ ids, hash = '', framed = false, action = ACTION }) {
+  const doc = page(ids, action);
   const replaced = [];
   const self = {};
   start(doc, { hash, pathname: '/dev/usun-konto/potwierdz/' }, { replaceState: (...args) => replaced.push(args) }, { self, top: framed ? {} : self });
@@ -68,5 +70,22 @@ describe('strona usunięcia konta (UC-33, 03 §5.1)', () => {
     expect(confirm['delete-submit'].disabled).toBe(true);
     expect(confirm['delete-form'].hidden).toBe(true);
     expect(confirm.replaced).toHaveLength(1);
+  });
+
+  // Para produkcyjna istnieje przed projektem produkcyjnym: formularz nie ma jeszcze adresu funkcji.
+  it('formularz bez adresu funkcji: komunikat zamiast formularza, token nie trafia do pola, adres wyczyszczony', () => {
+    for (const action of [null, '']) {
+      const request = run({ ids: REQUEST_IDS, action });
+      expect(request['delete-submit'].disabled).toBe(true);
+      expect(request['delete-form'].hidden).toBe(true);
+      expect(request['delete-unavailable'].hidden).toBe(false);
+
+      const confirm = run({ ids: CONFIRM_IDS, hash: `#${TOKEN}`, action });
+      expect(confirm['delete-token'].value).toBe('');
+      expect(confirm['delete-submit'].disabled).toBe(true);
+      expect(confirm['delete-unavailable'].hidden).toBe(false);
+      expect(confirm['delete-invalid'].hidden).toBe(true);
+      expect(confirm.replaced).toHaveLength(1);
+    }
   });
 });
