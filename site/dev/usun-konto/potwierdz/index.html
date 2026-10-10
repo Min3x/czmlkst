@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Jedyne wywołanie serwera na całej stronie: formularz do funkcji account-mail (11 §2.4) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action https://lkzyfklwdvlofaizjqua.supabase.co">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/assets/site.css">
+  <title>Potwierdź usunięcie konta — CzyMamLek</title>
+</head>
+<body>
+  <main class="card">
+    <h1>Potwierdź usunięcie konta</h1>
+    <!-- Samo otwarcie linku niczego nie zmienia — programy pocztowe otwierają linki; usuwanie zaczyna dopiero przycisk -->
+    <form id="delete-form" method="post" action="https://lkzyfklwdvlofaizjqua.supabase.co/functions/v1/account-mail?forceFunctionRegion=eu-west-1">
+      <input type="hidden" name="action" value="confirm">
+      <input type="hidden" name="token" id="delete-token">
+      <p>Konto CzyMamLek i jego dane zostaną usunięte po 7 dniach. W tym czasie możesz anulować usunięcie, logując się w aplikacji.</p>
+      <button type="submit" class="button" id="delete-submit" disabled>Potwierdzam — usuń konto</button>
+    </form>
+    <section id="delete-invalid" hidden>
+      <p>Ten link jest niepełny. Otwórz go jeszcze raz z wiadomości email albo poproś o nowy.</p>
+      <p><a href="/dev/usun-konto/">Poproś o nowy link</a></p>
+    </section>
+    <section id="delete-framed" hidden>
+      <p>Otwórz link z wiadomości email bezpośrednio w przeglądarce.</p>
+    </section>
+    <noscript>
+      <p>Ta strona potrzebuje JavaScriptu. Konto usuniesz też w aplikacji: Profil → Usuń konto.</p>
+    </noscript>
+  </main>
+  <script src="/assets/delete.js"></script>
+</body>
+</html>
