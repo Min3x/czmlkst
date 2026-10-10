@@ -96,6 +96,14 @@ describe('strona usunięcia konta (UC-33, 03 §5.1, 11 §2.4)', () => {
     }
   });
 
+  // gdy skrypt chowa formularz (ramka, brak adresu funkcji), zachęta do wpisania adresu znika z nim
+  it.each(['dev/usun-konto/index.html', 'usun-konto/index.html'])('%s: zachęta „Podaj adres email” jest częścią formularza', (file) => {
+    const html = read(file);
+    const form = html.slice(html.indexOf('<form'), html.indexOf('</form>'));
+    expect(form).toContain('Podaj adres email konta.');
+    expect(html.split('Podaj adres email konta.')).toHaveLength(2);
+  });
+
   it('odpowiedź po formularzu nie zdradza, czy konto istnieje ani czy link był ważny', () => {
     expect(read('dev/usun-konto/wyslano/index.html')).toContain('Jeśli na ten adres jest konto CzyMamLek');
     expect(read('dev/usun-konto/przyjeto/index.html')).toContain('Jeśli link był ważny');
