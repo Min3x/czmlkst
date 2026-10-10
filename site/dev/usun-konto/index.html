@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Jedyne wywołanie serwera na całej stronie: formularz do funkcji account-mail (11 §2.4) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action https://lkzyfklwdvlofaizjqua.supabase.co">
+  <!-- Jedyne wywołanie serwera na całej stronie: formularz do funkcji account-mail (11 §2.4).
+       'self' w form-action: funkcja odpowiada przekierowaniem z powrotem na tę stronę, a przeglądarki
+       stosują form-action także do celu przekierowania. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self' https://lkzyfklwdvlofaizjqua.supabase.co">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex">
   <link rel="stylesheet" href="/assets/site.css">

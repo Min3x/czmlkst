@@ -22,7 +22,7 @@ Wymagania i decyzje są w dokumentacji repozytorium aplikacji: `docs/design/03-b
 - **Strona nie łączy się z niczym**: CSP `default-src 'self'; connect-src 'none'`, bez analityki
   i czcionek z zewnątrz, `referrer` wyłączony. Pilnuje tego `test/site.test.js`.
 - **Wyjątek: strony z formularzem usunięcia konta** mają `form-action` ustawione na adres projektu
-  Supabase (i nic więcej); `connect-src 'none'` zostaje. Formularz wysyła `POST` — samo otwarcie
+  Supabase i `'self'` (cel przekierowania po wysłaniu), nic więcej; `connect-src 'none'` zostaje. Formularz wysyła `POST` — samo otwarcie
   linku (`GET`) niczego nie zmienia, bo programy pocztowe otwierają linki. Odpowiedzią funkcji jest
   zawsze przekierowanie na `wyslano/` albo `przyjeto/`, z tym samym tekstem bez względu na to, czy
   konto istnieje i czy link był ważny. Przycisk włącza dopiero `assets/delete.js`, gdy strona nie

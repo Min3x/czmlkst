@@ -58,7 +58,9 @@ describe('strona usunięcia konta (UC-33, 03 §5.1, 11 §2.4)', () => {
 
   it.each(FORM_PAGES)('%s: formularz wysyła POST wyłącznie do funkcji account-mail w eu-west-1', (file) => {
     const html = read(file);
-    expect(csp(html)).toBe(`default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action ${DEV_FUNCTIONS}`);
+    // 'self': odpowiedzią funkcji jest przekierowanie na wyslano/ albo przyjeto/, a przeglądarki
+    // sprawdzają form-action także dla celu przekierowania — bez tego osoba utknęłaby po wysłaniu
+    expect(csp(html)).toBe(`default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self' ${DEV_FUNCTIONS}`);
     const forms = [...html.matchAll(/<form[^>]*>/g)].map((m) => m[0]);
     expect(forms).toHaveLength(1);
     // GET niczego nie zmienia — skanery poczty otwierają linki (03 §5.1)
