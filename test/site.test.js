@@ -3,7 +3,11 @@ const fs = require('fs');
 const path = require('path');
 
 const read = (file) => fs.readFileSync(path.join(__dirname, '..', 'site', file), 'utf8');
-const PAGES = ['index.html', 'z/index.html', 'dev/z/index.html', 'auth/callback/index.html', 'dev/auth/callback/index.html'];
+const DELETE_PAGES = ['index.html', 'wyslano/index.html', 'potwierdz/index.html', 'przyjeto/index.html'].map((page) => `dev/usun-konto/${page}`);
+const PAGES = ['index.html', 'z/index.html', 'dev/z/index.html', 'auth/callback/index.html', 'dev/auth/callback/index.html', ...DELETE_PAGES];
+// Projekt Supabase dev (eu-west-1) — jedyny adres, na który strona cokolwiek wysyła.
+const DEV_FUNCTIONS = 'https://lkzyfklwdvlofaizjqua.supabase.co';
+const FORM_PAGES = ['dev/usun-konto/index.html', 'dev/usun-konto/potwierdz/index.html'];
 
 describe('statyczna strona czymamlek.pl (03 §4.1, A41)', () => {
   it.each(PAGES)('%s nie łączy się z żadnym serwerem i nie wczytuje niczego z zewnątrz', (file) => {
@@ -43,6 +47,59 @@ describe('statyczna strona czymamlek.pl (03 §4.1, A41)', () => {
 
   it('domena w CNAME', () => {
     expect(read('CNAME').trim()).toBe('czymamlek.pl');
+  });
+});
+
+describe('strona usunięcia konta (UC-33, 03 §5.1, 11 §2.4)', () => {
+  const csp = (html) => html.match(/http-equiv="Content-Security-Policy" content="([^"]*)"/)[1];
+  const attr = (tag, name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
+  const inputs = (html) =>
+    [...html.matchAll(/<input[^>]*>/g)].map((m) => ({ type: attr(m[0], 'type'), name: attr(m[0], 'name'), value: attr(m[0], 'value') }));
+
+  it.each(FORM_PAGES)('%s: formularz wysyła POST wyłącznie do funkcji account-mail w eu-west-1', (file) => {
+    const html = read(file);
+    // 'self': odpowiedzią funkcji jest przekierowanie na wyslano/ albo przyjeto/, a przeglądarki
+    // sprawdzają form-action także dla celu przekierowania — bez tego osoba utknęłaby po wysłaniu
+    expect(csp(html)).toBe(`default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self' ${DEV_FUNCTIONS}`);
+    const forms = [...html.matchAll(/<form[^>]*>/g)].map((m) => m[0]);
+    expect(forms).toHaveLength(1);
+    // GET niczego nie zmienia — skanery poczty otwierają linki (03 §5.1)
+    expect(attr(forms[0], 'method')).toBe('post');
+    expect(attr(forms[0], 'action')).toBe(`${DEV_FUNCTIONS}/functions/v1/account-mail?forceFunctionRegion=eu-west-1`);
+    // przycisk włącza dopiero skrypt, po sprawdzeniu, że strona nie jest w ramce
+    expect(html).toMatch(/<button[^>]*\sid="delete-submit"[^>]*\sdisabled>/);
+    expect(html).toContain('<script src="/assets/delete.js"></script>');
+  });
+
+  it('prośba wysyła tylko adres email, potwierdzenie tylko token', () => {
+    expect(inputs(read('dev/usun-konto/index.html'))).toEqual([
+      { type: 'hidden', name: 'action', value: 'request' },
+      { type: 'email', name: 'email', value: undefined },
+    ]);
+    expect(inputs(read('dev/usun-konto/potwierdz/index.html'))).toEqual([
+      { type: 'hidden', name: 'action', value: 'confirm' },
+      { type: 'hidden', name: 'token', value: undefined },
+    ]);
+  });
+
+  it('pozostałe strony nie mają formularzy i niczego nie wysyłają', () => {
+    for (const file of PAGES.filter((page) => !FORM_PAGES.includes(page))) {
+      expect(csp(read(file))).toContain("form-action 'none'");
+    }
+    for (const file of ['dev/usun-konto/wyslano/index.html', 'dev/usun-konto/przyjeto/index.html']) {
+      expect(read(file)).not.toMatch(/<form|<script/);
+    }
+  });
+
+  it('odpowiedź po formularzu nie zdradza, czy konto istnieje ani czy link był ważny', () => {
+    expect(read('dev/usun-konto/wyslano/index.html')).toContain('Jeśli na ten adres jest konto CzyMamLek');
+    expect(read('dev/usun-konto/przyjeto/index.html')).toContain('Jeśli link był ważny');
+  });
+
+  it('strona mówi, co jest usuwane i co zostaje (wymóg Sklepu Play)', () => {
+    const html = read('dev/usun-konto/index.html');
+    expect(html).toContain('po 7 dniach');
+    expect(html).toContain('przez 3 lata');
   });
 });
 

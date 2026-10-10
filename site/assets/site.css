@@ -65,4 +65,22 @@ p { margin: 0 0 1rem; }
 .qr-dark { fill: var(--qr-dark); }
 .qr-light { fill: var(--qr-light); }
 
+/* Formularz usunięcia konta */
+h2 { font-size: 1.15rem; line-height: 1.3; margin: 1.5rem 0 0.5rem; }
+a { color: inherit; }
+label { display: block; font-weight: 600; margin-bottom: 0.4rem; }
+input[type='email'] {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.75rem;
+  background: var(--background);
+  color: var(--text);
+  font: inherit;
+}
+button.button { width: 100%; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
+button.button:disabled { opacity: 0.5; cursor: default; }
+
 [hidden] { display: none !important; }
