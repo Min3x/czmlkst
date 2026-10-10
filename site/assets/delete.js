@@ -4,6 +4,8 @@
 //  - włącza przycisk dopiero, gdy strona nie jest osadzona w ramce — CSP w <meta> nie obsługuje
 //    `frame-ancestors`, a GitHub Pages nie ustawia nagłówków, więc to jedyna ochrona przed
 //    wyłudzeniem kliknięcia.
+// Formularz bez adresu funkcji (strony produkcyjne przed powstaniem projektu produkcyjnego)
+// zostaje wyłączony i pokazuje komunikat.
 'use strict';
 
 // Ten sam format co token zaproszenia: 32 bajty w base64url = 43 znaki (funkcja account-mail).
@@ -26,6 +28,8 @@ function start(doc, loc, history, win) {
   if (tokenField !== null) history.replaceState(null, '', loc.pathname);
 
   if (win.top !== win.self) return refuse(doc, 'delete-framed');
+  // bez adresu przeglądarka wysłałaby formularz na adres tej strony — adres email trafiłby donikąd
+  if (!doc.getElementById('delete-form').getAttribute('action')) return refuse(doc, 'delete-unavailable');
   if (tokenField !== null) {
     if (token === null) return refuse(doc, 'delete-invalid');
     tokenField.value = token;

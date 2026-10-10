@@ -3,8 +3,12 @@ const fs = require('fs');
 const path = require('path');
 
 const read = (file) => fs.readFileSync(path.join(__dirname, '..', 'site', file), 'utf8');
-const DELETE_PAGES = ['index.html', 'wyslano/index.html', 'potwierdz/index.html', 'przyjeto/index.html'].map((page) => `dev/usun-konto/${page}`);
-const PAGES = ['index.html', 'z/index.html', 'dev/z/index.html', 'auth/callback/index.html', 'dev/auth/callback/index.html', ...DELETE_PAGES];
+const DELETE_PAGE_NAMES = ['index.html', 'wyslano/index.html', 'potwierdz/index.html', 'przyjeto/index.html'];
+const DELETE_PAGES = DELETE_PAGE_NAMES.map((page) => `dev/usun-konto/${page}`);
+const PROD_DELETE_PAGES = DELETE_PAGE_NAMES.map((page) => `usun-konto/${page}`);
+const PAGES = [
+  'index.html', 'z/index.html', 'dev/z/index.html', 'auth/callback/index.html', 'dev/auth/callback/index.html', ...DELETE_PAGES, ...PROD_DELETE_PAGES,
+];
 // Projekt Supabase dev (eu-west-1) — jedyny adres, na który strona cokolwiek wysyła.
 const DEV_FUNCTIONS = 'https://lkzyfklwdvlofaizjqua.supabase.co';
 const FORM_PAGES = ['dev/usun-konto/index.html', 'dev/usun-konto/potwierdz/index.html'];
@@ -83,6 +87,7 @@ describe('strona usunięcia konta (UC-33, 03 §5.1, 11 §2.4)', () => {
   });
 
   it('pozostałe strony nie mają formularzy i niczego nie wysyłają', () => {
+    // strony produkcyjne usunięcia konta mają `form-action 'none'` do czasu projektu produkcyjnego
     for (const file of PAGES.filter((page) => !FORM_PAGES.includes(page))) {
       expect(csp(read(file))).toContain("form-action 'none'");
     }
@@ -100,6 +105,37 @@ describe('strona usunięcia konta (UC-33, 03 §5.1, 11 §2.4)', () => {
     const html = read('dev/usun-konto/index.html');
     expect(html).toContain('po 7 dniach');
     expect(html).toContain('przez 3 lata');
+  });
+});
+
+// Projekt produkcyjny Supabase jeszcze nie istnieje (etap 15 aplikacji). Strony produkcyjne są już
+// gotowe, ale formularz nie ma adresu i niczego nie wysyła — wpisanie cudzego albo zmyślonego
+// adresu *.supabase.co wysyłałoby adresy email do obcego projektu.
+describe('strona usunięcia konta — para produkcyjna przed projektem produkcyjnym', () => {
+  const csp = (html) => html.match(/http-equiv="Content-Security-Policy" content="([^"]*)"/)[1];
+  const PROD_FORM_PAGES = ['usun-konto/index.html', 'usun-konto/potwierdz/index.html'];
+
+  /** Strona dev sprowadzona do produkcyjnej: ścieżki bez /dev, formularz bez adresu funkcji. */
+  const asProduction = (html) =>
+    html
+      .replaceAll('/dev/usun-konto', '/usun-konto')
+      .replace(` action="${DEV_FUNCTIONS}/functions/v1/account-mail?forceFunctionRegion=eu-west-1"`, '')
+      .replace(`form-action 'self' ${DEV_FUNCTIONS}`, "form-action 'none'");
+
+  it.each(DELETE_PAGE_NAMES)('usun-konto/%s różni się od strony dev tylko ścieżką i brakiem adresu funkcji', (page) => {
+    expect(read(`usun-konto/${page}`)).toBe(asProduction(read(`dev/usun-konto/${page}`)));
+  });
+
+  it.each(PROD_FORM_PAGES)('%s: formularz bez adresu, CSP zabrania wysyłki, żadnego adresu Supabase na stronie', (file) => {
+    const html = read(file);
+    expect(csp(html)).toContain("form-action 'none'");
+    expect(html.match(/<form[^>]*>/)[0]).not.toMatch(/\saction=/);
+    expect(html).not.toContain('supabase.co');
+    expect(html).toMatch(/<button[^>]*\sid="delete-submit"[^>]*\sdisabled>/);
+  });
+
+  it.each([...FORM_PAGES, ...PROD_FORM_PAGES])('%s ma ukryty komunikat na czas, gdy formularz nie ma adresu', (file) => {
+    expect(read(file)).toMatch(/<section id="delete-unavailable" hidden>/);
   });
 });
 

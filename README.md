@@ -12,7 +12,7 @@ Wymagania i decyzje są w dokumentacji repozytorium aplikacji: `docs/design/03-b
 |---|---|
 | `z/`, `dev/z/` | link zaproszenia `https://czymamlek.pl[/dev]/z#<token>` bez zainstalowanej aplikacji: na Androidzie Sklep Play z tokenem w `referrer`, gdzie indziej kod QR rysowany lokalnie |
 | `auth/callback/`, `dev/auth/callback/` | link z emaila otwarty na komputerze: „Adres potwierdzony — wróć do aplikacji” |
-| `dev/usun-konto/` (+ `wyslano/`, `potwierdz/`, `przyjeto/`) | prośba o usunięcie konta bez aplikacji (wymóg Sklepu Play, UC-33): formularz z adresem email → link w emailu → strona z przyciskiem potwierdzenia. Jedyne miejsce, z którego strona coś wysyła: POST do funkcji `account-mail` projektu Supabase |
+| `usun-konto/`, `dev/usun-konto/` (+ `wyslano/`, `potwierdz/`, `przyjeto/`) | prośba o usunięcie konta bez aplikacji (wymóg Sklepu Play, UC-33): formularz z adresem email → link w emailu → strona z przyciskiem potwierdzenia. Jedyne miejsce, z którego strona coś wysyła: POST do funkcji `account-mail` projektu Supabase |
 | `.well-known/assetlinks.json` | weryfikacja Android App Links dla `com.czymamlek.app.dev` (i `com.czymamlek.app` od etapu 15) |
 | `assets/qrcode-generator.js` | kopia biblioteki `qrcode-generator` z `node_modules` (A40) — bez CDN |
 
@@ -27,8 +27,13 @@ Wymagania i decyzje są w dokumentacji repozytorium aplikacji: `docs/design/03-b
   zawsze przekierowanie na `wyslano/` albo `przyjeto/`, z tym samym tekstem bez względu na to, czy
   konto istnieje i czy link był ważny. Przycisk włącza dopiero `assets/delete.js`, gdy strona nie
   jest w ramce (`frame-ancestors` nie działa w `<meta>`, a Pages nie ustawia nagłówków).
-- **Para produkcyjna `usun-konto/` powstaje razem z projektem produkcyjnym** (etap 15 aplikacji) —
-  wcześniej formularz nie miałby dokąd wysyłać, a cudzego adresu `*.supabase.co` wpisać nie wolno.
+- **Para produkcyjna `usun-konto/` istnieje, ale jej formularz nie ma jeszcze adresu** — projekt
+  produkcyjny Supabase powstaje w etapie 15 aplikacji, a cudzego adresu `*.supabase.co` wpisać nie
+  wolno. Do tego czasu strony mają `form-action 'none'`, formularz jest bez `action`,
+  a `assets/delete.js` pokazuje zamiast niego komunikat. **W etapie 15:** dopisać `action` z adresem
+  funkcji projektu produkcyjnego na `usun-konto/index.html` i `usun-konto/potwierdz/index.html`,
+  zmienić ich CSP na `form-action 'self' <adres projektu>` i zaktualizować `test/site.test.js`
+  (sekcja „para produkcyjna przed projektem produkcyjnym”).
   Ścieżki muszą się zgadzać z funkcją `account-mail` (`SITE_BASE_URL` + `/usun-konto/...`).
 - **Format tokenu i ścieżki** (`/z`, `/dev/z`, `/auth/callback`) muszą się zgadzać z aplikacją
   (`src/domain/invites.ts`, `src/domain/appLinks.ts`). Zmiana po jednej stronie wymaga zmiany po drugiej.
