@@ -6,7 +6,7 @@
   <!-- Jedyne wywołanie serwera na całej stronie: formularz do funkcji account-mail (11 §2.4).
        'self' w form-action: funkcja odpowiada przekierowaniem z powrotem na tę stronę, a przeglądarki
        stosują form-action także do celu przekierowania. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self' https://yoeyshxsmcjlnhznispo.supabase.co">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex">
   <link rel="stylesheet" href="/assets/site.css">
@@ -15,7 +15,7 @@
 <body>
   <main class="card">
     <h1>Usuń konto CzyMamLek</h1>
-    <form id="delete-form" method="post">
+    <form id="delete-form" method="post" action="https://yoeyshxsmcjlnhznispo.supabase.co/functions/v1/account-mail?forceFunctionRegion=eu-west-1">
       <p>Podaj adres email konta. Wyślemy na niego link — konto zacznie być usuwane dopiero, gdy go otworzysz i potwierdzisz.</p>
       <input type="hidden" name="action" value="request">
       <label for="delete-email">Adres email konta</label>

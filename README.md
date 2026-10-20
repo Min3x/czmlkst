@@ -27,13 +27,9 @@ Wymagania i decyzje są w dokumentacji repozytorium aplikacji: `docs/design/03-b
   zawsze przekierowanie na `wyslano/` albo `przyjeto/`, z tym samym tekstem bez względu na to, czy
   konto istnieje i czy link był ważny. Przycisk włącza dopiero `assets/delete.js`, gdy strona nie
   jest w ramce (`frame-ancestors` nie działa w `<meta>`, a Pages nie ustawia nagłówków).
-- **Para produkcyjna `usun-konto/` istnieje, ale jej formularz nie ma jeszcze adresu** — projekt
-  produkcyjny Supabase powstaje w etapie 15 aplikacji, a cudzego adresu `*.supabase.co` wpisać nie
-  wolno. Do tego czasu strony mają `form-action 'none'`, formularz jest bez `action`,
-  a `assets/delete.js` pokazuje zamiast niego komunikat. **W etapie 15:** dopisać `action` z adresem
-  funkcji projektu produkcyjnego na `usun-konto/index.html` i `usun-konto/potwierdz/index.html`,
-  zmienić ich CSP na `form-action 'self' <adres projektu>` i zaktualizować `test/site.test.js`
-  (sekcja „para produkcyjna przed projektem produkcyjnym”).
+- **Para produkcyjna `usun-konto/` wysyła do funkcji `account-mail` projektu produkcyjnego**
+  (`yoeyshxsmcjlnhznispo`, etap 15 aplikacji) — strony są stroną dev z innym projektem i ścieżką
+  (`test/site.test.js`, „para produkcyjna”); żaden inny adres `*.supabase.co` na nich nie wolno.
   Ścieżki muszą się zgadzać z funkcją `account-mail` (`SITE_BASE_URL` + `/usun-konto/...`).
 - **Format tokenu i ścieżki** (`/z`, `/dev/z`, `/auth/callback`) muszą się zgadzać z aplikacją
   (`src/domain/invites.ts`, `src/domain/appLinks.ts`). Zmiana po jednej stronie wymaga zmiany po drugiej.
