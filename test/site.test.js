@@ -49,6 +49,15 @@ describe('statyczna strona czymamlek.pl (03 §4.1, A41)', () => {
     expect(statements.flatMap((s) => s.target.sha256_cert_fingerprints)).not.toContain(RN_DEBUG);
   });
 
+  it('assetlinks.json: wersja produkcyjna z odciskiem własnego klucza bety (A58 aplikacji), dev zostaje', () => {
+    const statements = JSON.parse(read('.well-known/assetlinks.json'));
+    const prod = statements.find((s) => s.target.package_name === 'com.czymamlek.app');
+    expect(prod.relation).toEqual(['delegate_permission/common.handle_all_urls']);
+    expect(prod.target.sha256_cert_fingerprints).toEqual([
+      '6A:3A:EC:B3:F4:4E:16:3A:6E:02:7B:F5:4C:8F:5A:30:14:FD:95:DE:1B:C8:43:AB:76:78:06:C9:00:28:DA:A3',
+    ]);
+    expect(statements.map((s) => s.target.package_name).sort()).toEqual(['com.czymamlek.app', 'com.czymamlek.app.dev']);
+  });
   it('domena w CNAME', () => {
     expect(read('CNAME').trim()).toBe('czymamlek.pl');
   });
@@ -87,13 +96,21 @@ describe('strona usunięcia konta (UC-33, 03 §5.1, 11 §2.4)', () => {
   });
 
   it('pozostałe strony nie mają formularzy i niczego nie wysyłają', () => {
-    // strony produkcyjne usunięcia konta mają `form-action 'none'` do czasu projektu produkcyjnego
-    for (const file of PAGES.filter((page) => !FORM_PAGES.includes(page))) {
+    const PROD_FORMS = ['usun-konto/index.html', 'usun-konto/potwierdz/index.html'];
+    for (const file of PAGES.filter((page) => !FORM_PAGES.includes(page) && !PROD_FORMS.includes(page))) {
       expect(csp(read(file))).toContain("form-action 'none'");
     }
     for (const file of ['dev/usun-konto/wyslano/index.html', 'dev/usun-konto/przyjeto/index.html']) {
       expect(read(file)).not.toMatch(/<form|<script/);
     }
+  });
+
+  // gdy skrypt chowa formularz (ramka, brak adresu funkcji), zachęta do wpisania adresu znika z nim
+  it.each(['dev/usun-konto/index.html', 'usun-konto/index.html'])('%s: zachęta „Podaj adres email” jest częścią formularza', (file) => {
+    const html = read(file);
+    const form = html.slice(html.indexOf('<form'), html.indexOf('</form>'));
+    expect(form).toContain('Podaj adres email konta.');
+    expect(html.split('Podaj adres email konta.')).toHaveLength(2);
   });
 
   it('odpowiedź po formularzu nie zdradza, czy konto istnieje ani czy link był ważny', () => {
@@ -108,30 +125,28 @@ describe('strona usunięcia konta (UC-33, 03 §5.1, 11 §2.4)', () => {
   });
 });
 
-// Projekt produkcyjny Supabase jeszcze nie istnieje (etap 15 aplikacji). Strony produkcyjne są już
-// gotowe, ale formularz nie ma adresu i niczego nie wysyła — wpisanie cudzego albo zmyślonego
-// adresu *.supabase.co wysyłałoby adresy email do obcego projektu.
-describe('strona usunięcia konta — para produkcyjna przed projektem produkcyjnym', () => {
+// Para produkcyjna wysyła do funkcji account-mail projektu produkcyjnego (etap 15 aplikacji) —
+// wyłącznie do niego: adres dev albo obcy *.supabase.co wysyłałby adresy email do innego projektu.
+const PROD_FUNCTIONS = 'https://yoeyshxsmcjlnhznispo.supabase.co';
+describe('strona usunięcia konta — para produkcyjna', () => {
   const csp = (html) => html.match(/http-equiv="Content-Security-Policy" content="([^"]*)"/)[1];
   const PROD_FORM_PAGES = ['usun-konto/index.html', 'usun-konto/potwierdz/index.html'];
 
-  /** Strona dev sprowadzona do produkcyjnej: ścieżki bez /dev, formularz bez adresu funkcji. */
-  const asProduction = (html) =>
-    html
-      .replaceAll('/dev/usun-konto', '/usun-konto')
-      .replace(` action="${DEV_FUNCTIONS}/functions/v1/account-mail?forceFunctionRegion=eu-west-1"`, '')
-      .replace(`form-action 'self' ${DEV_FUNCTIONS}`, "form-action 'none'");
+  /** Strona dev sprowadzona do produkcyjnej: ścieżki bez /dev, adres funkcji projektu prod. */
+  const asProduction = (html) => html.replaceAll('/dev/usun-konto', '/usun-konto').replaceAll(DEV_FUNCTIONS, PROD_FUNCTIONS);
 
-  it.each(DELETE_PAGE_NAMES)('usun-konto/%s różni się od strony dev tylko ścieżką i brakiem adresu funkcji', (page) => {
+  it.each(DELETE_PAGE_NAMES)('usun-konto/%s różni się od strony dev tylko ścieżką i projektem', (page) => {
     expect(read(`usun-konto/${page}`)).toBe(asProduction(read(`dev/usun-konto/${page}`)));
   });
 
-  it.each(PROD_FORM_PAGES)('%s: formularz bez adresu, CSP zabrania wysyłki, żadnego adresu Supabase na stronie', (file) => {
+  it.each(PROD_FORM_PAGES)('%s: formularz i CSP tylko do funkcji projektu prod, z regionem', (file) => {
     const html = read(file);
-    expect(csp(html)).toContain("form-action 'none'");
-    expect(html.match(/<form[^>]*>/)[0]).not.toMatch(/\saction=/);
-    expect(html).not.toContain('supabase.co');
-    expect(html).toMatch(/<button[^>]*\sid="delete-submit"[^>]*\sdisabled>/);
+    expect(csp(html)).toContain(`form-action 'self' ${PROD_FUNCTIONS}`);
+    expect(html.match(/<form[^>]*>/)[0]).toContain(
+      `action="${PROD_FUNCTIONS}/functions/v1/account-mail?forceFunctionRegion=eu-west-1"`,
+    );
+    const refs = [...html.matchAll(/https:\/\/([a-z0-9]+)\.supabase\.co/g)].map((m) => m[1]);
+    expect(new Set(refs)).toEqual(new Set(['yoeyshxsmcjlnhznispo']));
   });
 
   it.each([...FORM_PAGES, ...PROD_FORM_PAGES])('%s ma ukryty komunikat na czas, gdy formularz nie ma adresu', (file) => {

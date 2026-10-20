@@ -10,5 +10,17 @@
         "C9:43:DB:DE:D9:35:AE:7E:1D:CC:1D:4C:FA:1B:5C:83:85:DC:C4:AA:97:D3:53:D5:39:4C:D5:DB:25:4B:2A:43"
       ]
     }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.czymamlek.app",
+      "sha256_cert_fingerprints": [
+        "6A:3A:EC:B3:F4:4E:16:3A:6E:02:7B:F5:4C:8F:5A:30:14:FD:95:DE:1B:C8:43:AB:76:78:06:C9:00:28:DA:A3"
+      ]
+    }
   }
 ]
