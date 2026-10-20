@@ -49,6 +49,15 @@ describe('statyczna strona czymamlek.pl (03 §4.1, A41)', () => {
     expect(statements.flatMap((s) => s.target.sha256_cert_fingerprints)).not.toContain(RN_DEBUG);
   });
 
+  it('assetlinks.json: wersja produkcyjna z odciskiem własnego klucza bety (A58 aplikacji), dev zostaje', () => {
+    const statements = JSON.parse(read('.well-known/assetlinks.json'));
+    const prod = statements.find((s) => s.target.package_name === 'com.czymamlek.app');
+    expect(prod.relation).toEqual(['delegate_permission/common.handle_all_urls']);
+    expect(prod.target.sha256_cert_fingerprints).toEqual([
+      '6A:3A:EC:B3:F4:4E:16:3A:6E:02:7B:F5:4C:8F:5A:30:14:FD:95:DE:1B:C8:43:AB:76:78:06:C9:00:28:DA:A3',
+    ]);
+    expect(statements.map((s) => s.target.package_name).sort()).toEqual(['com.czymamlek.app', 'com.czymamlek.app.dev']);
+  });
   it('domena w CNAME', () => {
     expect(read('CNAME').trim()).toBe('czymamlek.pl');
   });
